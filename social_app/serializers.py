@@ -6,7 +6,7 @@ class ImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MilestoneImage
-        fields = ['milestone', 'image']
+        fields = ['id', 'image']
 
 
 class MilestoneSerializer(serializers.ModelSerializer):
