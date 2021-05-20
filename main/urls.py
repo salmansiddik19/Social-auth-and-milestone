@@ -16,11 +16,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from social_app import views
+from rest_framework import routers
+
+
+router = routers.DefaultRouter()
+router.register(r'milestones', views.MilestoneViewSet, basename='milestone')
+router.register(r'images', views.ImageViewSet, basename='image')
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('', include(router.urls)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('admin/', admin.site.urls),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

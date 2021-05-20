@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # third-party
     'social_django',
+    'rest_framework',
     # local
     'social_app',
 ]
@@ -171,3 +172,7 @@ SOCIAL_AUTH_LINKEDIN_OAUTH2_EXTRA_DATA = [('id', 'id'),
 
 SOCIAL_AUTH_TWITTER_KEY = 'HBe5QBS5s9RjpQiS8cZzLxBZk'
 SOCIAL_AUTH_TWITTER_SECRET = 's1djwyq9qXlD3eYSoY1bUqcCuMcovvk9dtUuWW7BewdZL2JAZY'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
