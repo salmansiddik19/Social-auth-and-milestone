@@ -176,3 +176,9 @@ SOCIAL_AUTH_TWITTER_SECRET = 's1djwyq9qXlD3eYSoY1bUqcCuMcovvk9dtUuWW7BewdZL2JAZY
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'main.pagination.CustomPagination',
+    'PAGE_SIZE': 2,
+}

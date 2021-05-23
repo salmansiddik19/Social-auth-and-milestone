@@ -15,28 +15,67 @@
         {% block content %}
         {% endblock %}
     </div>
+    <br>
+    <hr>
+    <div class="nav-btn">
+        <button class="prev-btn">prev</button>
+        <button class="next-btn">next</button>
+    </div>
     <div id="demo">
+    </div>
+    <div class="nav-btn">
+        <button class="prev-btn">prev</button>
+        <button class="next-btn">next</button>
     </div>
     <script>
         $(document).ready(function () {
-
-            console.log('Hello');
-            $.ajax({
-                method: 'GET',
-                url: 'http://localhost:8080/milestones/',
-                dataType: 'json'
-            }).done(function (data) {
-                console.log(data);
-                $.each(data, function (i, item) {
-                    $('#demo').append('<h3>' + item.name + '</h3><p>' + item.date + '</p>');
-                    $.each(item['images'], function (i, item2) {
-                        $("#demo").append('<img src= "' + item2.image + '">' + '<br>');
-                    });
-                });
-
+            var page = 1,
+                page_size = 2,
+                count = 3;
+            getData();
+            $(".prev-btn").on("click", function () {
+                if (page > 1) {
+                    page--;
+                    $("#demo").html("");
+                    getData();
+                }
+                console.log("Prev-page:" + page);
             });
 
-        })
+            $(".next-btn").on("click", function () {
+                if (page * page_size < count) {
+                    page++;
+                    $("#demo").html("");
+                    getData();
+                }
+                console.log("Next-page:" + page);
+            });
+
+            console.log('Hello');
+            function getData() {
+                $.ajax({
+                    method: 'GET',
+                    url: 'http://localhost:8080/milestones/',
+                    dataType: 'json',
+                    data: {
+                        page: page,
+                        page_size: page_size
+                    }
+                }).done(function (data) {
+                    count = data['meta_data'].count;
+                    console.log(count)
+                    console.log(data);
+                    $.each(data['data'], function (i, item) {
+                        $('#demo').append('<h3>' + item.name + '</h3><p>' + item.date + '</p>');
+                        $.each(item['images'], function (i, item2) {
+                            $("#demo").append('<img src= "' + item2.image + '">' + '<br>');
+                        });
+                    });
+                });
+            }
+
+        });
+
     </script>
 </body>
 
