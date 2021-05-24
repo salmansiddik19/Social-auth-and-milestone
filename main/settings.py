@@ -182,3 +182,6 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'main.pagination.CustomPagination',
     'PAGE_SIZE': 2,
 }
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
