@@ -13,9 +13,15 @@ class Command(BaseCommand):
         milestone = Milestone.objects.filter(date=today)
         if milestone:
             for m in milestone:
-                mail_subject = [m.name, m.description,
-                                m.date, m.milestoneimage_set.all()]
-                message = 'Reminder'
+                images = m.milestoneimage_set.all()
+                image = []
+                if images:
+                    for i in images:
+                        image.append(image)
+                else:
+                    image = 'No image'
+                mail_subject = 'Reminder for your Milestone.'
+                message = f'Milestone Name: {m.name}\nMilestone Date: {m.date}\nDescription: {m.description}\nImages: {image}'
                 to_email = 'kazal@gmail.com'
                 send_mail(mail_subject, message,
                           'salmansiddik19@gmail.com', [to_email])
