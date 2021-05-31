@@ -1,7 +1,80 @@
 {% extends 'base.html' %}
-
+{% block title %}Home{% endblock %}
 {% block content %}
-<h2>Homepage</h2>
-<p>Hello {{ user.username }}!</p>
-<a href="{% url 'logout' %}">Logout</a>
+<div class="home-slider">
+
+</div>
+<div class="btn">
+    <button class="prev">prev</button>
+    <button class="next">next</button>
+</div>
+<script>
+    $(document).ready(function () {
+        page = 1,
+            page_size = 5,
+            count = 0;
+
+        getData();
+
+        function getData() {
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:8080/milestones/',
+                dataType: 'json',
+                data: {
+                    page: page,
+                    page_size: page_size
+                }
+            }).done(function (data) {
+                count = data['meta_data'].count;
+                $.each(data['data'], function (index, item) {
+
+                    countTime = new Date(item.date).getTime();
+                    makeTimer(countTime, item.id);
+
+                    if (index == 0) {
+                        slider = "<div class='show-slider'>"
+                            + "<p class='timer_" + item.id + "'>" + "</p>"
+                            + "<h3>" + item.name + "</h3>"
+                            + "<h6>" + item.description + "</h6>"
+                            + "</div>"
+                        $(".home-slider").append(slider);
+                        $.each(item['images'], function (index, item2) {
+                            $(".show-slider").append("<img src='" + item2.image + "'>");
+                        });
+                    } else {
+                        slider = "<div class='hide-slider'>"
+                            + "<p class='timer_" + item.id + "'>" + "</p>"
+                            + "<h3>" + item.name + "</h3>"
+                            + "<h6>" + item.description + "</h6>"
+                            + "</div>"
+                        $(".home-slider").append(slider);
+                        $.each(item['images'], function (index, item2) {
+                            $(".show-slider").append("<img src='" + item2.image + "'>");
+                        });
+                    }
+                });
+            });
+        }
+
+        function makeTimer(countTime, itemId) {
+            setInterval(() => {
+                countDownTime = countTime;
+                now = new Date().getTime();
+                distance = countDownTime - now;
+                days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                if (distance > 0) {
+                    timer = days + " : " + hours + " : " + minutes + " : " + seconds;
+                } else {
+                    timer = "Expired!"
+                }
+                className = ".timer_" + itemId;
+                $(className).html(timer);
+            }, 1000);
+        }
+    });
+</script>
 {% endblock %}

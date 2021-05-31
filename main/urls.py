@@ -29,6 +29,7 @@ router.register(r'images', views.ImageViewSet, basename='image')
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('milestone/', views.milestone, name='milestone'),
     path('', include(router.urls)),
     path('accounts/', include('django.contrib.auth.urls')),
     path('oauth/', include('social_django.urls', namespace='social')),

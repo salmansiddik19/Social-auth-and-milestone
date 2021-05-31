@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from datetime import date
 
 from django.contrib.auth.decorators import login_required
 
@@ -11,7 +12,15 @@ from .models import Milestone, MilestoneImage
 
 @login_required
 def home(request):
-    return render(request, 'social_app/home.html')
+    user = request.user
+    milestones = Milestone.objects.filter(
+        creator=user).order_by('date')
+    return render(request, 'social_app/home.html', {'milestones': milestones})
+
+
+@login_required
+def milestone(request):
+    return render(request, 'social_app/milestone.html')
 
 
 class MilestoneViewSet(viewsets.ModelViewSet):
@@ -20,7 +29,9 @@ class MilestoneViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
-        return self.request.user.milestone_set.all()
+        today = date.today()
+        return self.request.user.milestone_set.all().order_by('date')
+        # return Milestone.objects.filter(creator=self.request.user).filter(date__gte=today).order_by('date')
 
     def perform_create(self, serializer):
         serializer.save(creator=self.request.user)
