@@ -15,3 +15,6 @@ class Milestone(models.Model):
 class MilestoneImage(models.Model):
     milestone = models.ForeignKey(Milestone, on_delete=models.CASCADE)
     image = models.FileField(blank=True, upload_to='images/')
+
+    def __str__(self):
+        return self.milestone.name

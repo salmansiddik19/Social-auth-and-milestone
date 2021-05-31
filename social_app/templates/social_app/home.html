@@ -43,14 +43,15 @@
                             $(".show-slider").append("<img src='" + item2.image + "'>");
                         });
                     } else {
-                        slider = "<div class='hide-slider'>"
+                        slider = "<div class='hide-slider image_" + item.id + "'>"
                             + "<p class='timer_" + item.id + "'>" + "</p>"
                             + "<h3>" + item.name + "</h3>"
                             + "<h6>" + item.description + "</h6>"
                             + "</div>"
                         $(".home-slider").append(slider);
                         $.each(item['images'], function (index, item2) {
-                            $(".show-slider").append("<img src='" + item2.image + "'>");
+                            className = ".image_" + item.id;
+                            $(className).append("<img src='" + item2.image + "'>");
                         });
                     }
                 });
