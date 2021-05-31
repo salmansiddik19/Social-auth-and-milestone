@@ -106,8 +106,6 @@ ENV/
 # static
 /static/
 
-# media
-/media/
 
 # vscode
 /.vscode/
