@@ -33,3 +33,19 @@ button {
   background-color: rgb(125, 125, 125);
   color: beige;
 }
+
+.list-image {
+  text-decoration: none;
+}
+
+.table-btn {
+  display: inline-flex;
+}
+
+.table-btn button {
+  margin-right: 10px;
+}
+
+.page-item {
+  margin-right: 20px;
+}

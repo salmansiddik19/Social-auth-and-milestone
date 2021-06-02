@@ -12,10 +12,7 @@ from .models import Milestone, MilestoneImage
 
 @login_required
 def home(request):
-    user = request.user
-    milestones = Milestone.objects.filter(
-        creator=user).order_by('date')
-    return render(request, 'social_app/home.html', {'milestones': milestones})
+    return render(request, 'social_app/home.html')
 
 
 @login_required
@@ -30,7 +27,7 @@ class MilestoneViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         today = date.today()
-        return self.request.user.milestone_set.all().order_by('date')
+        return self.request.user.milestone_set.all().order_by('id')
         # return Milestone.objects.filter(creator=self.request.user).filter(date__gte=today).order_by('date')
 
     def perform_create(self, serializer):

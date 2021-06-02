@@ -2,9 +2,278 @@
 {% block title %}Milestone{% endblock %}
 {% block content %}
 
-<div id="demo">
-    <h1>Milestone</h1>
-</div>
+<h1 class="page-header">Milestones</h1>
+<p>
+    <button type="button" class="btn btn-primary add-milestone">
+        Add Milestone
+    </button>
+</p>
+<table class="table" id="milestone-table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">description</th>
+            <th scope="col">Date</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody class="milestone-tbody">
+
+    </tbody>
+
+    <!-- Create Modal -->
+    <div id="createModal" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Milestone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="cName">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="cDescription">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="cDate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                    <button type="button" class="btn btn-primary" id="create">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal  -->
+    <div id="editModal" class="modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Milestone</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input type="text" class="form-control" id="eName">
+                        <label class="form-label">Description</label>
+                        <input type="text" class="form-control" id="eDescription">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="eDate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                    <button type="button" class="btn btn-primary" id="update">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</table>
+
+<!-- Pagination -->
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center" id="pagination">
+        <li class="page-item">
+            <button class="page-link prev-btn" tabindex="-1">Previous</button>
+        </li>
+        <li class="page-item">
+            <button class="page-link next-btn" tabindex="-1">Next</button>
+        </li>
+    </ul>
+</nav>
+
+<script>
+
+    // for csrf_token... 
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // ready to go...
+    $(document).ready(function () {
+
+        var page = 1,
+            page_size = 10,
+            count = 0;
+
+
+        getData();
+
+        $(".prev-btn").on("click", function () {
+            if (page > 1) {
+                page--;
+                $(".milestone-tbody").html("");
+                getData();
+            }
+        });
+
+        $(".next-btn").on("click", function () {
+            if (page * page_size < count) {
+                page++;
+                $(".milestone-tbody").html("");
+                getData();
+            }
+        });
+
+        // Get milestone from database...
+        function getData() {
+            $.ajax({
+                method: 'GET',
+                url: 'http://localhost:8080/milestones/',
+                dataType: 'json',
+                data: {
+                    page: page,
+                    page_size: page_size
+                }
+            }).done(function (data) {
+
+                if (data['data'] == '') {
+                    $(".milestone-tbody").append("<tr>" + "<td colspan='6'  class='text-center bg-warning'>" + "No Milestone" + "</td>" + "</tr>")
+                }
+
+                count = data['meta_data'].count;
+                totalPage = data['meta_data'].total_page;
+
+                $.each(data['data'], function (index, item) {
+                    table = "<tr id='item_" + item.id + "'>"
+                        + "<td>" + item.id + "</td>"
+                        + "<td>" + item.name + "</td>"
+                        + "<td>" + item.description + "</td>"
+                        + "<td>" + item.date + "</td>"
+                        + "<td>" + "<div class='table-btn'>" + "<button class='btn btn-sm btn-outline-info edit' id='editItem_" + item.id + "'>" + "Edit" + "</button>" + "<button class='btn btn-sm btn-outline-danger delete' id='deleteItem_" + item.id + "'>" + "Delete" + "</button>" + "</div>" + "</td>"
+                        + "</tr>"
+                    $(".milestone-tbody").append(table);
+                    editId = "#editItem_" + item.id;
+                    deleteId = "#deleteItem_" + item.id;
+                    $(editId).click(function () {
+                        editItem(item);
+                    });
+                    $(deleteId).click(function () {
+                        deleteItem(item);
+                    });
+                });
+
+            });
+        }
+
+
+        // Add Milestone...
+        $(".add-milestone").click(function () {
+            $("#createModal").modal('show');
+            $("#create").click(function () {
+                $.ajax({
+                    method: 'POST',
+                    url: 'http://localhost:8080/milestones/',
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    data: {
+                        name: $("#cName").val(),
+                        description: $("#cDescription").val(),
+                        date: $("#cDate").val(),
+                    },
+                    success: add_success,
+                    error: add_error,
+                });
+            });
+
+            function add_success() {
+                $("#createModal").modal("hide");
+                $(".form-control").val("");
+                location.reload();
+            };
+
+            function add_error() {
+                alert("Could not add Milestone!");
+            }
+        });
+
+
+        // Update Milestone...
+        function editItem(item) {
+            console.log('item clicked', item);
+            $("#editModal").modal('show');
+            $("#eName").val(item.name);
+            $("#eDescription").val(item.description);
+            $("#eDate").val(item.date);
+            $("#update").click(function () {
+                var url = 'http://localhost:8080/milestones/' + item.id + '/';
+                $.ajax({
+                    method: 'PUT',
+                    url: url,
+                    dataType: 'json',
+                    headers: {
+                        'X-CSRFToken': csrftoken
+                    },
+                    data: {
+                        name: $("#eName").val(),
+                        description: $("#eDescription").val(),
+                        date: $("#eDate").val(),
+                    },
+                    success: update_success,
+                    error: update_error,
+                });
+            });
+
+            function update_success() {
+                $("#editModal").modal("hide");
+                $(".form-control").val("");
+                location.reload();
+            };
+
+            function update_error() {
+                alert("Could not update Milestone!");
+            }
+        }
+
+
+        // Delete Milestone
+        function deleteItem(item) {
+            var url = 'http://localhost:8080/milestones/' + item.id + '/';
+            $.ajax({
+                method: 'DELETE',
+                url: url,
+                dataType: 'json',
+                headers: {
+                    'X-CSRFToken': csrftoken
+                },
+                success: delete_success,
+                error: delete_error,
+            });
+
+            function delete_success() {
+                location.reload();
+            };
+
+            function delete_error() {
+                alert("Could not delete Milestone!");
+            }
+        }
+
+    });
+
+</script>
 
 
 {% endblock %}
