@@ -1,3 +1,4 @@
+import math
 from typing import Union
 
 from rest_framework import pagination
@@ -28,7 +29,7 @@ class CustomPagination(pagination.PageNumberPagination):
                 'next': self._get_next_page(),
                 'previous': self._get_previous_page(),
                 'page': self.page.number,
-                'total_page': int(self.page.paginator.count / self.get_page_size(self.request)),
+                'total_page': math.ceil(self.page.paginator.count / self.get_page_size(self.request)),
             },
             'data': data
         })

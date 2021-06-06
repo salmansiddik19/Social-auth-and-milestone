@@ -27,7 +27,7 @@ class MilestoneViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         today = date.today()
-        return self.request.user.milestone_set.all().order_by('id')
+        return self.request.user.milestone_set.all().order_by('-id')
         # return Milestone.objects.filter(creator=self.request.user).filter(date__gte=today).order_by('date')
 
     def perform_create(self, serializer):

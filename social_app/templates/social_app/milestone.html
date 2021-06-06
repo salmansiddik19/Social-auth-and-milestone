@@ -4,7 +4,7 @@
 
 <h1 class="page-header">Milestones</h1>
 <p>
-    <button type="button" class="btn btn-primary add-milestone">
+    <button type="button" class="btn btn-primary add-milestone" data-toggle="modal" data-target="#formCreate">
         Add Milestone
     </button>
 </p>
@@ -24,7 +24,7 @@
     </tbody>
 
     <!-- Create Modal -->
-    <div id="createModal" class="modal" tabindex="-1">
+    <div id="formCreate" class="modal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -32,25 +32,32 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" id="cName">
-                        <label class="form-label">Description</label>
-                        <input type="text" class="form-control" id="cDescription">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-control" id="cDate">
-                    </div>
+                    <form id="create">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" name="description">
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date">
+                        </div>
+                        <div class="mb-3" style="display: flex;">
+                            <button type="submit" class="btn btn-primary">Create</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
-                    <button type="button" class="btn btn-primary" id="create">Create</button>
-                </div>
+
             </div>
         </div>
     </div>
 
-    <!-- Edit Modal  -->
-    <div id="editModal" class="modal" tabindex="-1">
+    <!-- Update Modal  -->
+    <div id="updateModal" class="modal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -58,18 +65,27 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Name</label>
-                        <input type="text" class="form-control" id="eName">
-                        <label class="form-label">Description</label>
-                        <input type="text" class="form-control" id="eDescription">
-                        <label class="form-label">Date</label>
-                        <input type="date" class="form-control" id="eDate">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
-                    <button type="button" class="btn btn-primary" id="update">Update</button>
+                    <form id="update">
+                        <div class="mb-3">
+                            <input type="number" class="form-control" id="id" name="id" hidden>
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name">
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="description" name="description">
+                        </div>
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date</label>
+                            <input type="date" class="form-control" id="date" name="date">
+                        </div>
+                        <div class="mb-3" style="display: flex;">
+                            <button type="submit" class="btn btn-primary">Update</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancle</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -118,6 +134,8 @@
 
 
         getData();
+        createData();
+        updateData();
 
         $(".prev-btn").on("click", function () {
             if (page > 1) {
@@ -146,7 +164,7 @@
                     page_size: page_size
                 }
             }).done(function (data) {
-
+                console.log(data);
                 if (data['data'] == '') {
                     $(".milestone-tbody").append("<tr>" + "<td colspan='6'  class='text-center bg-warning'>" + "No Milestone" + "</td>" + "</tr>")
                 }
@@ -165,6 +183,7 @@
                     $(".milestone-tbody").append(table);
                     editId = "#editItem_" + item.id;
                     deleteId = "#deleteItem_" + item.id;
+
                     $(editId).click(function () {
                         editItem(item);
                     });
@@ -178,75 +197,141 @@
 
 
         // Add Milestone...
-        $(".add-milestone").click(function () {
-            $("#createModal").modal('show');
-            $("#create").click(function () {
-                $.ajax({
-                    method: 'POST',
-                    url: 'http://localhost:8080/milestones/',
-                    dataType: 'json',
-                    headers: {
-                        'X-CSRFToken': csrftoken
-                    },
-                    data: {
-                        name: $("#cName").val(),
-                        description: $("#cDescription").val(),
-                        date: $("#cDate").val(),
-                    },
-                    success: add_success,
-                    error: add_error,
-                });
-            });
-
-            function add_success() {
-                $("#createModal").modal("hide");
-                $(".form-control").val("");
-                location.reload();
-            };
-
-            function add_error() {
-                alert("Could not add Milestone!");
-            }
+        $(".add-milestone").on("click", function () {
+            $("#formCreate").modal("show");
         });
 
-
-        // Update Milestone...
-        function editItem(item) {
-            console.log('item clicked', item);
-            $("#editModal").modal('show');
-            $("#eName").val(item.name);
-            $("#eDescription").val(item.description);
-            $("#eDate").val(item.date);
-            $("#update").click(function () {
-                var url = 'http://localhost:8080/milestones/' + item.id + '/';
+        function createData() {
+            var modal = "#formCreate";
+            $(modal).on("submit", function (e) {
+                e.preventDefault();
+                var milestoneName = $(this).find("input[name='name']").val();
+                var milestoneDescription = $(this).find("input[name='description']").val();
+                var milestoneDate = $(this).find("input[name='date']").val();
+                var url = 'http://localhost:8080/milestones/';
                 $.ajax({
-                    method: 'PUT',
+                    method: 'POST',
                     url: url,
                     dataType: 'json',
                     headers: {
                         'X-CSRFToken': csrftoken
                     },
                     data: {
-                        name: $("#eName").val(),
-                        description: $("#eDescription").val(),
-                        date: $("#eDate").val(),
+                        name: milestoneName,
+                        description: milestoneDescription,
+                        date: milestoneDate,
                     },
-                    success: update_success,
-                    error: update_error,
+                    success: add_success,
+                    error: add_error,
+                }).done(function (data) {
+                    console.log(data);
+                    table = "<tr id='item_" + data.id + "'>"
+                        + "<td>" + data.id + "</td>"
+                        + "<td>" + data.name + "</td>"
+                        + "<td>" + data.description + "</td>"
+                        + "<td>" + data.date + "</td>"
+                        + "<td>"
+                        + "<div class='table-btn'>"
+                        + "<button class='btn btn-sm btn-outline-info edit' id='editItem_" + data.id + "'>" + "Edit" + "</button>"
+                        + "<button class='btn btn-sm btn-outline-danger delete' id='deleteItem_" + data.id + "'>" + "Delete" + "</button>"
+                        + "</div>"
+                        + "</td>"
+                    $(".milestone-tbody").prepend(table);
+                    editId = "#editItem_" + data.id;
+                    deleteId = "#deleteItem_" + data.id;
+
+                    $(editId).click(function () {
+                        editItem(data);
+                    });
+                    $(deleteId).click(function () {
+                        deleteItem(data);
+                    });
                 });
             });
 
+            function add_success() {
+                $("#formCreate").modal("hide");
+                $(".create").trigger("reset");
+            }
+
+            function add_error() {
+                alert("Could not add Milestone!");
+            }
+        }
+
+        // Update Milestone...
+        function editItem(item) {
+            var modal = "#updateModal";
+            $(modal).modal('show');
+            $(modal).find("input[name='id']").val(item.id);
+            $(modal).find("input[name='name']").val(item.name);
+            $(modal).find("input[name='description']").val(item.description);
+            $(modal).find("input[name='date']").val(item.date);
+        }
+
+        function updateData() {
+            var modal = "#updateModal";
+            $(modal).on("submit", function (e) {
+                e.preventDefault();
+                var milestoneId = $(this).find("input[name='id']").val();
+                var milestoneName = $(this).find("input[name='name']").val();
+                var milestoneDescription = $(this).find("input[name='description']").val();
+                var milestoneDate = $(this).find("input[name='date']").val();
+                var url = 'http://localhost:8080/milestones/' + milestoneId + '/';
+                if (milestoneName.length == '') {
+                    alert('Name Required.')
+                } else if (milestoneDate.length == '') {
+                    alert('Date Required.')
+                } else {
+                    $.ajax({
+                        method: 'PUT',
+                        url: url,
+                        dataType: 'json',
+                        headers: {
+                            'X-CSRFToken': csrftoken
+                        },
+                        data: {
+                            name: milestoneName,
+                            description: milestoneDescription,
+                            date: milestoneDate,
+                        },
+                        success: update_success,
+                        error: update_error,
+                    }).done(function (data) {
+                        itemId = "#item_" + data.id;
+                        table = "<td>" + data.id + "</td>"
+                            + "<td>" + data.name + "</td>"
+                            + "<td>" + data.description + "</td>"
+                            + "<td>" + data.date + "</td>"
+                            + "<td>"
+                            + "<div class='table-btn'>"
+                            + "<button class='btn btn-sm btn-outline-info edit' id='editItem_" + data.id + "'>" + "Edit" + "</button>"
+                            + "<button class='btn btn-sm btn-outline-danger delete' id='deleteItem_" + data.id + "'>" + "Delete" + "</button>"
+                            + "</div>"
+                            + "</td>"
+                        $(itemId).html("");
+                        $(itemId).append(table);
+                        editId = "#editItem_" + data.id;
+                        deleteId = "#deleteItem_" + data.id;
+
+                        $(editId).click(function () {
+                            editItem(data);
+                        });
+                        $(deleteId).click(function () {
+                            deleteItem(data);
+                        });
+                    });
+                }
+            });
+
             function update_success() {
-                $("#editModal").modal("hide");
-                $(".form-control").val("");
-                location.reload();
-            };
+                $("#updateModal").modal("hide");
+            }
 
             function update_error() {
                 alert("Could not update Milestone!");
             }
         }
-
 
         // Delete Milestone
         function deleteItem(item) {
@@ -263,8 +348,9 @@
             });
 
             function delete_success() {
-                location.reload();
-            };
+                var itemId = "#item_" + item.id;
+                $(itemId).remove();
+            }
 
             function delete_error() {
                 alert("Could not delete Milestone!");
