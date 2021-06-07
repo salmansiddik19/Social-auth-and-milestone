@@ -49,3 +49,7 @@ button {
 .page-item {
   margin-right: 20px;
 }
+
+.disable {
+  display: none;
+}
