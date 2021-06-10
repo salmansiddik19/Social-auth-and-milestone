@@ -5,8 +5,8 @@
 
 </div>
 <div class="btn">
-    <button class="prev">prev</button>
-    <button class="next">next</button>
+    <button class="prev disable">prev</button>
+    <button class="next disable">next</button>
 </div>
 <script>
     $(document).ready(function () {
@@ -16,6 +16,7 @@
 
         getData();
 
+        // Get data from database...
         function getData() {
             $.ajax({
                 method: 'GET',
@@ -26,9 +27,19 @@
                     page_size: page_size
                 }
             }).done(function (data) {
+                if (data['data'] == '') {
+                    $(".home-slider").append("<div class='show-slider'>"
+                        + "<h3>You have no Milestone</h3>"
+                        + "</div>");
+                    $(".home-slider").addClass("bg-warning")
+                }
                 count = data['meta_data'].count;
+                if (count > 1) {
+                    $(".next").removeClass("disable");
+                    $(".prev").removeClass("disable");
+                }
                 $.each(data['data'], function (index, item) {
-
+                    var url = "{% url 'milestone' %}?id=" + item.id;
                     countTime = new Date(item.date).getTime();
                     makeTimer(countTime, item.id);
 
@@ -37,8 +48,15 @@
                             + "<p class='timer_" + item.id + "'>" + "</p>"
                             + "<h3>" + item.name + "</h3>"
                             + "<h6>" + item.description + "</h6>"
+                            + "<button class='btn btn-secondary edit' id='item_" + item.id + "'>" + "Edit" + "</button>"
                             + "</div>"
                         $(".home-slider").append(slider);
+                        editId = "#item_" + item.id;
+                        $(editId).on("click", function () {
+                            $(location).attr("href", url);
+                            var modal = "#updateModal";
+                            $(modal).modal('show');
+                        });
                         $.each(item['images'], function (index, item2) {
                             $(".show-slider").append("<img src='" + item2.image + "'>");
                         });
@@ -47,8 +65,15 @@
                             + "<p class='timer_" + item.id + "'>" + "</p>"
                             + "<h3>" + item.name + "</h3>"
                             + "<h6>" + item.description + "</h6>"
+                            + "<button class='btn btn-secondary ' id='item_" + item.id + "'>" + "Edit" + "</button>"
                             + "</div>"
                         $(".home-slider").append(slider);
+                        editId = "#item_" + item.id;
+                        $(editId).on("click", function () {
+                            $(location).attr("href", url);
+                            var modal = "#updateModal";
+                            $(modal).modal('show');
+                        });
                         $.each(item['images'], function (index, item2) {
                             className = ".image_" + item.id;
                             $(className).append("<img src='" + item2.image + "'>");

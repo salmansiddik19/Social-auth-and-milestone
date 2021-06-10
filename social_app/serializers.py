@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import serializers, fields
 from .models import Milestone, MilestoneImage
 
@@ -21,3 +22,10 @@ class MilestoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Milestone
         fields = ('id', 'name', 'description', 'date', 'images')
+
+    def validate_date(self, value):
+        today = datetime.date.today() + datetime.timedelta(days=1)
+        if (value < today):
+            raise serializers.ValidationError(
+                "Date will be grater than today...")
+        return value
