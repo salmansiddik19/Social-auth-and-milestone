@@ -16,7 +16,7 @@
 
         getData();
 
-        // Get data from database...
+        // Get data from database... 
         function getData() {
             $.ajax({
                 method: 'GET',
@@ -71,8 +71,6 @@
                         editId = "#item_" + item.id;
                         $(editId).on("click", function () {
                             $(location).attr("href", url);
-                            var modal = "#updateModal";
-                            $(modal).modal('show');
                         });
                         $.each(item['images'], function (index, item2) {
                             className = ".image_" + item.id;
@@ -83,6 +81,7 @@
             });
         }
 
+        // Countdown timer...
         function makeTimer(countTime, itemId) {
             setInterval(() => {
                 countDownTime = countTime;
